@@ -14,6 +14,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * 数据库操作类，用于查询需要写入的数据
+ *
+ * @see com.zlxtk.databaseExplain.DataServiceImpl
+ * @author ZLXTK
+ * @date 2017年1月12日
+ * @Version 1.0
+ *
+ */
 public class DataServiceImpl {
 
 	// 驱动程序名
@@ -46,7 +55,7 @@ public class DataServiceImpl {
 	}
 
 	/**
-	 * 连接数据库
+	 * 获取连接数据库的链接
 	 * 
 	 * @return
 	 */
@@ -108,6 +117,7 @@ public class DataServiceImpl {
 		ResultSet rs = statement.executeQuery(sql);
 
 		while (rs.next()) {
+			//这里把key前缀数字是为了排序
 			Map<String, String> map = new HashMap<String, String>();
 			map.put("1_COLUMN_NAME", rs.getString("COLUMN_NAME"));
 			map.put("2_DATA_TYPE", rs.getString("DATA_TYPE"));
@@ -140,7 +150,10 @@ public class DataServiceImpl {
 	// return map;
 	// }
 	//
-
+	/**
+	 * 测试
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		try {
 			DataServiceImpl ds = new DataServiceImpl();

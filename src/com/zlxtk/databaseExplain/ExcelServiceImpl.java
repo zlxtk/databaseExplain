@@ -1,6 +1,5 @@
 package com.zlxtk.databaseExplain;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -11,11 +10,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -23,7 +23,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class ExcelServiceImpl {
 	private File file;
 	private XSSFWorkbook book;
-	private static short rowHight;
+	private static short rowHeight = 20;
+	private static short cellWidth = 20;
 
 	public ExcelServiceImpl() {
 		// TODO Auto-generated constructor stub
@@ -63,16 +64,16 @@ public class ExcelServiceImpl {
 	 */
 	public void WriteDateToSheel(List<Map<String, String>> tables, String sheelName, int type) throws Exception {
 
-		// 设置超链接单元格样式
-		XSSFCellStyle style = book.createCellStyle();
-		XSSFFont cellFont = book.createFont();
-		cellFont.setUnderline((byte) 1);
-		cellFont.setColor(new XSSFColor(Color.BLUE));
-		style.setFont(cellFont);
+		// 处理类
+		CreationHelper createHelper = book.getCreationHelper();
 
 		// 创建表
 		XSSFSheet sheet;
 		sheet = book.createSheet(sheelName);
+		// 设置默认行高和列宽
+		sheet.setDefaultRowHeightInPoints(rowHeight);
+		sheet.setDefaultColumnWidth(cellWidth);
+		// 行号
 		int rowNum = 0;
 		// 获取表头
 		List<String> names = new ArrayList<String>();
@@ -87,29 +88,32 @@ public class ExcelServiceImpl {
 
 		// 写入表头
 		XSSFRow row = sheet.createRow(rowNum++);
-		// row.setHeight(rowHight);
+		// 表头列号
 		int ce = 0;
 		for (String name : names) {
 			Cell cell = row.createCell(ce++);
+			cell.setCellStyle(getCellStyle(false));
 			cell.setCellValue(name);
 		}
 
 		// 写入数据
 		for (Map<String, String> map : tables) {
 			row = sheet.createRow(rowNum++);
-			// row.setHeight(rowHight);
+			// 内容列号
 			int cellNum = 0;
 			for (String name : names) {
 				Cell cell = row.createCell(cellNum++);
-				// 是否添加超链接
+				// 样式是否添加超链接
+				boolean isLink = false;
 				if (type == 1 && name.equals("1_NAME")) {
-					CreationHelper createHelper = book.getCreationHelper();
 					Hyperlink hyperlink = createHelper.createHyperlink(Hyperlink.LINK_DOCUMENT);
-					// "#"表示本文档 "明细页面"表示sheet页名称 "A10"表示第几列第几行
+					// "dmy_user!A1": 链接到名为 dmy_user的sheet页的 A列1行
 					hyperlink.setAddress(map.get(name) + "!A1");
 					cell.setHyperlink(hyperlink);
-					cell.setCellStyle(style); // 设置样式，字体颜色
+
+					isLink = true;
 				}
+				cell.setCellStyle(getCellStyle(isLink)); // 设置样式，字体颜色
 				cell.setCellValue(map.get(name));
 			}
 
@@ -118,6 +122,37 @@ public class ExcelServiceImpl {
 		FileOutputStream out = getOutputStream();
 		book.write(out);
 		out.close();
+	}
+
+	/**
+	 * 设置单元格样式
+	 * 
+	 * @param isLink
+	 *            是否是超链接
+	 * @return
+	 * @throws Exception
+	 */
+	private CellStyle getCellStyle(boolean isLink) throws Exception {
+		XSSFCellStyle style = (XSSFCellStyle) book.createCellStyle();
+		if (isLink) {
+			Font hlink_font = book.createFont();
+			hlink_font.setUnderline(Font.U_SINGLE);
+			hlink_font.setColor(IndexedColors.BLUE.getIndex());
+			style.setFont(hlink_font);
+		}
+
+		// 设置单元格边框样式
+		// CellStyle.BORDER_DOUBLE 双边线
+		// CellStyle.BORDER_THIN 细边线
+		// CellStyle.BORDER_MEDIUM 中等边线
+		// CellStyle.BORDER_DASHED 虚线边线
+		// CellStyle.BORDER_HAIR 小圆点虚线边线
+		// CellStyle.BORDER_THICK 粗边线
+		style.setBorderBottom(CellStyle.BORDER_THIN);
+		style.setBorderTop(CellStyle.BORDER_THIN);
+		style.setBorderLeft(CellStyle.BORDER_THIN);
+		style.setBorderRight(CellStyle.BORDER_THIN);
+		return style;
 	}
 
 }
