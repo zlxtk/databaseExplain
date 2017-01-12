@@ -92,7 +92,7 @@ public class ExcelServiceImpl {
 		int ce = 0;
 		for (String name : names) {
 			Cell cell = row.createCell(ce++);
-			cell.setCellStyle(getCellStyle(false));
+			cell.setCellStyle(getCellStyle(false,rowNum));
 			cell.setCellValue(name);
 		}
 
@@ -113,7 +113,7 @@ public class ExcelServiceImpl {
 
 					isLink = true;
 				}
-				cell.setCellStyle(getCellStyle(isLink)); // 设置样式，字体颜色
+				cell.setCellStyle(getCellStyle(isLink,rowNum)); // 设置样式，字体颜色
 				cell.setCellValue(map.get(name));
 			}
 
@@ -129,10 +129,12 @@ public class ExcelServiceImpl {
 	 * 
 	 * @param isLink
 	 *            是否是超链接
+	 * @param rowNum
+	 *            行号，用于设置背景色
 	 * @return
 	 * @throws Exception
 	 */
-	private CellStyle getCellStyle(boolean isLink) throws Exception {
+	private CellStyle getCellStyle(boolean isLink,int rowNum) throws Exception {
 		XSSFCellStyle style = (XSSFCellStyle) book.createCellStyle();
 		if (isLink) {
 			Font hlink_font = book.createFont();
@@ -148,10 +150,19 @@ public class ExcelServiceImpl {
 		// CellStyle.BORDER_DASHED 虚线边线
 		// CellStyle.BORDER_HAIR 小圆点虚线边线
 		// CellStyle.BORDER_THICK 粗边线
-		style.setBorderBottom(CellStyle.BORDER_THIN);
-		style.setBorderTop(CellStyle.BORDER_THIN);
-		style.setBorderLeft(CellStyle.BORDER_THIN);
-		style.setBorderRight(CellStyle.BORDER_THIN);
+		style.setBorderBottom(XSSFCellStyle.BORDER_THIN);
+		style.setBorderTop(XSSFCellStyle.BORDER_THIN);
+		style.setBorderLeft(XSSFCellStyle.BORDER_THIN);
+		style.setBorderRight(XSSFCellStyle.BORDER_THIN);
+		
+		//设置背景色
+		if(rowNum%2==0){
+			style.setFillForegroundColor(IndexedColors.ROSE.getIndex()); //设置单元格背景颜色  
+		}else{
+			style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex()); //设置单元格背景颜色  
+		}
+		style.setFillPattern(XSSFCellStyle.SOLID_FOREGROUND); 
+		
 		return style;
 	}
 
