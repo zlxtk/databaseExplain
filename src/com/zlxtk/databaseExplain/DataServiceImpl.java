@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,8 +94,7 @@ public class DataServiceImpl {
 			map.put("2_COMMENT", rs.getString("comment"));
 			tables.add(map);
 		}
-		rs.close();
-		conn.close();
+		closeConnection(conn, statement, rs);
 		return tables;
 	}
 
@@ -128,28 +128,24 @@ public class DataServiceImpl {
 			map.put("7_COMMENT", rs.getString("COLUMN_COMMENT"));
 			tables.add(map);
 		}
-		rs.close();
-		conn.close();
+		closeConnection(conn, statement, rs);
 		return tables;
 	}
+	
+	/**
+	 * 关闭链接
+	 * @param conn
+	 * @param statement
+	 * @param rs
+	 * @throws SQLException
+	 */
+	private void closeConnection(Connection conn, Statement statement, ResultSet rs) throws SQLException {
+		rs.close();
+		statement.close();
+		conn.close();
+	}
 
-	// /**
-	// * @param map
-	// * @return
-	// */
-	// private Map<String,String> formatMap(Map<String,String> map){
-	// Set<String> set= map.keySet();
-	// Iterator<String> it= set.iterator();
-	// int num=0;
-	// while(it.hasNext()){
-	// String key=it.next().toString();
-	// map.put(num+"_"+key, map.get(key));
-	// num++;
-	// map.remove(key);
-	// }
-	// return map;
-	// }
-	//
+	
 	/**
 	 * 测试
 	 * @param args
